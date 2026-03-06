@@ -39,6 +39,11 @@ public static class WebKitViewsServiceCollectionExtensions
         services.AddSingleton<ITemplateHelper>(new ScriptHelper(options));
         services.AddSingleton<ITemplateHelper>(new FontHelper(options));
         services.AddSingleton<ITemplateHelper>(new MediaHelper(options));
+        services.AddSingleton<ITemplateHelper>(new DefaultHelper());
+        services.AddSingleton<ITemplateHelper>(new IfValHelper());
+        services.AddSingleton<ITemplateHelper>(new ConcatHelper());
+        services.AddSingleton<ITemplateHelper>(new ReplaceHelper());
+        services.AddSingleton<ITemplateHelper>(new CountHelper());
 
         services.AddSingleton<IViewEngine>(sp => CreateViewEngine(sp, options));
 

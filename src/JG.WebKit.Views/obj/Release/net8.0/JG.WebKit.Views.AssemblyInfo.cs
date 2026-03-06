@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Template engine for .NET 8. Compiled rendering, layouts with sections, partials, " +
     "loops, conditionals, and configurable asset paths."))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e0ad6b676ea8cd2ee8556cb18d05dddd1cddf86")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+332c1138276837ec5d682c2fec8fa24a92852d1e")]
 [assembly: System.Reflection.AssemblyProductAttribute("JG.WebKit.Views")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JG.WebKit.Views")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/jamesgober/dotnet-webkit-views</projectUrl>
     <description>Template engine for .NET 8. Compiled rendering, layouts with sections, partials, loops, conditionals, and configurable asset paths.</description>
     <tags>template-engine views web-framework dotnet cms layouts</tags>
-    <repository type="git" url="https://github.com/jamesgober/dotnet-webkit-views" commit="5e0ad6b676ea8cd2ee8556cb18d05dddd1cddf86" />
+    <repository type="git" url="https://github.com/jamesgober/dotnet-webkit-views" commit="332c1138276837ec5d682c2fec8fa24a92852d1e" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="8.0.0" exclude="Build,Analyzers" />

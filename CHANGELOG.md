@@ -21,12 +21,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Loops with index tracking: `{{#each collection as item }}...{{/each}}`
   - Partial includes with context: `{{> partialName context }}`
   - Layout system with sections: `{{#layout "name" }}...{{#section "name" }}...{{/section}}`
-- Built-in template helpers:
-  - `date` - Format dates with custom format strings
-  - `truncate` - Truncate strings with ellipsis
-  - `uppercase` / `lowercase` - Case conversion
-  - `json` - JSON serialization
-  - `asset` / `css` / `js` / `img` - Asset path resolution with CDN and cache busting
+- Built-in template helpers (15 total):
+  - **Formatting**: `date` - Format dates with custom format strings
+  - **String manipulation**: `truncate` - Truncate strings with ellipsis
+  - **Case conversion**: `uppercase` / `lowercase` - Case transformation
+  - **Serialization**: `json` - JSON serialization
+  - **Utility**: `default` - Provide fallback values for null/empty
+  - **Conditionals**: `ifval` - Ternary operator (condition ? true : false)
+  - **Concatenation**: `concat` - Concatenate multiple strings
+  - **Replacement**: `replace` - Replace occurrences in strings
+  - **Counting**: `count` - Count items in collections
+  - **Asset management**: `asset` / `css` / `js` / `img` - Asset path resolution with CDN and cache busting
 - Custom helper support via `ITemplateHelper` interface
 - Template provider abstraction with two implementations:
   - `FileTemplateProvider` - File system with hot-reload support
@@ -48,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FileSystemWatcher for automatic hot-reload in development
 - Comprehensive error handling with detailed error messages
 - Full XML documentation on all public APIs
-- 142 unit and integration tests with 100% pass rate
+- 175 unit and integration tests with 100% pass rate
 - Edge case handling for null values, empty collections, missing variables
 - Security features: XSS protection via HTML escaping by default
 

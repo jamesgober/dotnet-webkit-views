@@ -350,3 +350,170 @@ public sealed class MediaHelper : ITemplateHelper
         return Convert.ToHexString(hash)[..8].ToLower(CultureInfo.InvariantCulture);
     }
 }
+
+/// <summary>
+/// Built-in default value helper.
+/// Returns the first argument if non-null and non-empty, otherwise returns the fallback.
+/// Usage: {{ default title "Untitled Page" }}
+/// </summary>
+public sealed class DefaultHelper : ITemplateHelper
+{
+    /// <inheritdoc />
+    public string Name => "default";
+
+    /// <inheritdoc />
+    public string Execute(object?[] arguments, TemplateContext context)
+    {
+        if (arguments.Length < 1)
+            return string.Empty;
+
+        var value = arguments[0];
+        var fallback = arguments.Length > 1 ? arguments[1]?.ToString() ?? string.Empty : string.Empty;
+
+        // null → return fallback
+        if (value == null)
+            return fallback;
+
+        // Convert to string
+        var str = value.ToString() ?? string.Empty;
+
+        // empty or whitespace → return fallback
+        if (string.IsNullOrWhiteSpace(str))
+            return fallback;
+
+        // Non-empty value → return it
+        return str;
+    }
+}
+
+/// <summary>
+/// Built-in conditional value helper (ternary operator).
+/// Returns second argument if first is truthy, otherwise returns third argument.
+/// Usage: {{ ifval user.isAdmin "Administrator" "User" }}
+/// </summary>
+public sealed class IfValHelper : ITemplateHelper
+{
+    /// <inheritdoc />
+    public string Name => "ifval";
+
+    /// <inheritdoc />
+    public string Execute(object?[] arguments, TemplateContext context)
+    {
+        if (arguments.Length < 3)
+            return string.Empty;
+
+        var condition = arguments[0];
+        var trueValue = arguments[1]?.ToString() ?? string.Empty;
+        var falseValue = arguments[2]?.ToString() ?? string.Empty;
+
+        return IsTruthy(condition) ? trueValue : falseValue;
+    }
+
+    private static bool IsTruthy(object? value)
+    {
+        return value switch
+        {
+            null => false,
+            bool b => b,
+            string s => !string.IsNullOrEmpty(s),
+            int i => i != 0,
+            long l => l != 0,
+            double d => d != 0.0,
+            float f => f != 0.0f,
+            decimal m => m != 0m,
+            _ => true
+        };
+    }
+}
+
+/// <summary>
+/// Built-in string concatenation helper.
+/// Concatenates all arguments into a single string.
+/// Usage: {{ concat firstName " " lastName }}
+/// </summary>
+public sealed class ConcatHelper : ITemplateHelper
+{
+    /// <inheritdoc />
+    public string Name => "concat";
+
+    /// <inheritdoc />
+    public string Execute(object?[] arguments, TemplateContext context)
+    {
+        if (arguments.Length == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+        foreach (var arg in arguments)
+        {
+            sb.Append(arg?.ToString() ?? string.Empty);
+        }
+
+        return sb.ToString();
+    }
+}
+
+/// <summary>
+/// Built-in string replacement helper.
+/// Replaces all occurrences of the search string with the replacement string.
+/// Usage: {{ replace title "-" " " }}
+/// </summary>
+public sealed class ReplaceHelper : ITemplateHelper
+{
+    /// <inheritdoc />
+    public string Name => "replace";
+
+    /// <inheritdoc />
+    public string Execute(object?[] arguments, TemplateContext context)
+    {
+        if (arguments.Length < 3)
+            return string.Empty;
+
+        var input = arguments[0]?.ToString() ?? string.Empty;
+        var search = arguments[1]?.ToString() ?? string.Empty;
+        var replacement = arguments[2]?.ToString() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(search))
+            return input;
+
+        return input.Replace(search, replacement);
+    }
+}
+
+/// <summary>
+/// Built-in collection count helper.
+/// Returns the count of items in a collection.
+/// Usage: {{ count items }}
+/// </summary>
+public sealed class CountHelper : ITemplateHelper
+{
+    /// <inheritdoc />
+    public string Name => "count";
+
+    /// <inheritdoc />
+    public string Execute(object?[] arguments, TemplateContext context)
+    {
+        if (arguments.Length < 1)
+            return "0";
+
+        var collection = arguments[0];
+
+        if (collection == null)
+            return "0";
+
+        if (collection is string)
+            return "0"; // Strings are not counted as collections
+
+        if (collection is System.Collections.ICollection col)
+            return col.Count.ToString(CultureInfo.InvariantCulture);
+
+        if (collection is System.Collections.IEnumerable enumerable)
+        {
+            var count = 0;
+            foreach (var _ in enumerable)
+                count++;
+            return count.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return "0";
+    }
+}

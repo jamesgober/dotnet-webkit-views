@@ -2,22 +2,24 @@
 
 **Enterprise-grade, high-performance template engine for .NET 8+**
 
+[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![NuGet](https://img.shields.io/nuget/v/JG.WebKit.Views.svg)](https://www.nuget.org/packages/JG.WebKit.Views/)
-[![Build Status](https://img.shields.io/github/workflow/status/jamesgober/dotnet-webkit-views/CI)](https://github.com/jamesgober/dotnet-webkit-views/actions)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/JG.WebKit.Views.svg)](https://www.nuget.org/packages/JG.WebKit.Views/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![CI](https://github.com/jamesgober/dotnet-webkit-views/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesgober/dotnet-webkit-views/actions)
 
 JG.WebKit.Views is a blazing-fast, feature-rich template engine designed for production workloads. Built from the ground up for .NET 8+, it provides compiled delegate rendering, comprehensive syntax support, and enterprise-ready features like hot-reload, caching, and extensibility.
 
 ## Features
 
-- **🚀 High Performance** - Compiled delegate rendering with zero-allocation HTML escaping
-- **🎨 Rich Syntax** - Variables, conditionals, loops, partials, layouts, helpers
-- **🔧 Extensible** - Custom helpers, template providers, and hooks
-- **🔄 Hot Reload** - FileSystemWatcher integration for instant template updates
-- **💾 Smart Caching** - Template compilation caching with granular invalidation
-- **🛡️ Secure** - HTML escaping by default, XSS protection built-in
-- **📦 Flexible** - File system or in-memory providers, perfect for testing
-- **📚 Well Documented** - Full XML docs, comprehensive guides, real-world examples
+- **High Performance** - Compiled delegate rendering with zero-allocation HTML escaping
+- **Rich Syntax** - Variables, conditionals, loops, partials, layouts, helpers
+- **Extensible** - Custom helpers, template providers, and hooks
+- **Hot Reload** - FileSystemWatcher integration for instant template updates
+- **Smart Caching** - Template compilation caching with granular invalidation
+- **Secure** - HTML escaping by default, XSS protection built-in
+- **Flexible** - File system or in-memory providers, perfect for testing
+- **Well Documented** - Full XML docs, comprehensive guides, real-world examples
 
 ## Quick Start
 
@@ -156,7 +158,15 @@ var html = await engine.RenderAsync("index", context);
 {{ date publishedAt "yyyy-MM-dd" }}
 {{ truncate description 100 }}
 {{ uppercase title }}
+{{ lowercase email }}
 {{ json data }}
+
+<!-- Utility helpers -->
+{{ default title "Untitled Page" }}
+{{ ifval user.isAdmin "Admin" "User" }}
+{{ concat firstName " " lastName }}
+{{ replace slug "-" " " }}
+{{ count items }}
 
 <!-- Asset helpers with CDN and versioning -->
 <link rel="stylesheet" href="{{ css "styles.css" }}">
@@ -408,7 +418,7 @@ dotnet test
 dotnet test /p:CollectCoverage=true
 ```
 
-**Test Coverage**: 142 tests, 100% pass rate, <3s execution time
+**Test Coverage**: 175 tests, 100% pass rate, <1s execution time
 
 ## Contributing
 
@@ -420,9 +430,9 @@ Apache License 2.0 - see [LICENSE](LICENSE) for details.
 
 ## Support
 
-- 🐛 [Report Issues](https://github.com/jamesgober/dotnet-webkit-views/issues)
-- 💬 [Discussions](https://github.com/jamesgober/dotnet-webkit-views/discussions)
-- 📧 Email: support@example.com
+- [Report Issues](https://github.com/jamesgober/dotnet-webkit-views/issues)
+- [Discussions](https://github.com/jamesgober/dotnet-webkit-views/discussions)
+- Email: support@example.com
 
 ## Acknowledgments
 

@@ -278,6 +278,122 @@ var context = new TemplateContext(
 {{> image "responsive" }}
 ```
 
+## Built-in Helper Examples
+
+### Default Values
+
+Use `default` to provide fallback values for missing or empty data:
+
+```html
+<!-- Page with optional title -->
+<title>{{ default pageTitle "My Website" }}</title>
+
+<!-- User profile with optional bio -->
+<p>{{ default user.bio "This user hasn't written a bio yet." }}</p>
+
+<!-- Product with optional description -->
+<div>{{ default product.description "No description available." }}</div>
+```
+
+### Conditional Values (Ternary)
+
+Use `ifval` for inline conditional values:
+
+```html
+<!-- User badge -->
+<span class="badge {{ ifval user.isPremium "premium" "standard" }}">
+  {{ ifval user.isPremium "Premium Member" "Standard Member" }}
+</span>
+
+<!-- Stock status -->
+<div class="{{ ifval inStock "text-success" "text-danger" }}">
+  {{ ifval inStock "In Stock" "Out of Stock" }}
+</div>
+
+<!-- Visibility -->
+<button {{ ifval isPublic "" "disabled" }}>
+  {{ ifval isPublic "Publish" "Draft" }}
+</button>
+```
+
+### String Concatenation
+
+Use `concat` to build strings from multiple parts:
+
+```html
+<!-- Full name -->
+<h1>{{ concat "Hello, " user.firstName " " user.lastName "!" }}</h1>
+
+<!-- Address -->
+<address>
+  {{ concat address.street ", " address.city ", " address.state " " address.zip }}
+</address>
+
+<!-- File path -->
+<a href="{{ concat "/downloads/" file.year "/" file.month "/" file.name }}">
+  Download
+</a>
+```
+
+### String Replacement
+
+Use `replace` to transform strings:
+
+```html
+<!-- URL-friendly title -->
+<a href="/posts/{{ replace post.title " " "-" }}">{{ post.title }}</a>
+
+<!-- Clean up file names -->
+{{ replace fileName "_" " " }}
+
+<!-- Format phone numbers -->
+{{ replace phone "." "-" }}
+```
+
+### Collection Counting
+
+Use `count` to display collection sizes:
+
+```html
+<!-- Cart items -->
+<span class="badge">{{ count cart.items }} items</span>
+
+<!-- Notification count -->
+{{#if notifications }}
+  <span class="count">{{ count notifications }}</span>
+{{/if}}
+
+<!-- Empty check -->
+{{#if items }}
+  <p>Showing {{ count items }} results</p>
+{{#else}}
+  <p>No results found</p>
+{{/if}}
+```
+
+### Real-World Combination
+
+Combining multiple helpers for complex templates:
+
+```html
+{{#each products as product }}
+  <div class="product">
+    <h3>{{ default product.name "Unnamed Product" }}</h3>
+    <p class="price">
+      ${{ product.price }}
+      <span class="{{ ifval product.onSale "sale" "" }}">
+        {{ ifval product.onSale "ON SALE!" "" }}
+      </span>
+    </p>
+    <p>{{ truncate (default product.description "No description") 100 }}</p>
+    <p class="stock {{ ifval product.inStock "available" "unavailable" }}">
+      {{ ifval product.inStock (concat "In Stock (" (count product.variants) " variants)") "Out of Stock" }}
+    </p>
+    <a href="/products/{{ replace product.name " " "-" }}">View Details</a>
+  </div>
+{{/each}}
+```
+
 ## Custom Helpers
 
 ### Markdown Helper
@@ -406,114 +522,4 @@ public class DbTemplateProvider : ITemplateProvider
         {
             Path = path,
             Content = template.Content,
-            LastModified = template.UpdatedAt
-        };
-    }
-}
-
-services.AddTemplateProvider<DbTemplateProvider>();
-```
-
-## Troubleshooting
-
-### Template Not Found
-
-If a template renders as empty:
-1. Check the path (should be relative to TemplatePath)
-2. Check the file extension (default: `.tpl`)
-3. Verify the file exists
-4. Check file permissions
-
-### Expression Not Evaluating
-
-Expressions use dot notation and are case-sensitive for POCO properties.
-
-```html
-<!-- Data must have "user" key -->
-{{ user }}
-
-<!-- user must have "Name" property (case-sensitive) -->
-{{ user.Name }}
-
-<!-- Dictionaries are case-insensitive -->
-{{ user["name"] }}
-```
-
-### Missing Variable Renders Empty
-
-By design, missing variables don't throw errors. Check:
-- Variable name spelling
-- Data structure in controller
-- Property casing
-
-### Performance Issues
-
-Enable caching (default):
-```csharp
-options.CacheCompiledTemplates = true;
-```
-
-Disable hot-reload in production:
-```csharp
-options.EnableHotReload = env.IsDevelopment();
-```
-
-Monitor compiled template count if rendering many unique templates.
-
-## Testing
-
-### Unit Testing
-
-```csharp
-[Fact]
-public async Task RenderPage_WithPostData_ContainsTitle()
-{
-    var provider = new InMemoryTemplateProvider();
-    provider.AddTemplate("test", "{{ title }}");
-
-    var engine = new ViewEngine(provider, new ViewEngineOptions(), new());
-    var context = new TemplateContext(
-        new Dictionary<string, object?> { ["title"] = "Hello" }
-    );
-
-    var result = await engine.RenderStringAsync("{{ title }}", context);
-
-    Assert.Equal("Hello", result);
-}
-```
-
-### Integration Testing
-
-```csharp
-[Fact]
-public async Task RenderLayout_WithPartialAndSection_OutputsComplete()
-{
-    var provider = new InMemoryTemplateProvider();
-    provider.AddTemplate("layout", 
-        "{{> header }}<main>{{#yield \"content\"}}</main>");
-    provider.AddTemplate("header", "<header>Site</header>");
-    provider.AddTemplate("page",
-        "{{#layout \"layout\"}}<h1>Page</h1>{{/layout}}");
-
-    var engine = new ViewEngine(provider, new ViewEngineOptions(), new());
-    var context = new TemplateContext(new Dictionary<string, object?>());
-
-    var result = await engine.RenderAsync("page", context);
-
-    Assert.Contains("<header>Site</header>", result);
-    Assert.Contains("<h1>Page</h1>", result);
-}
-```
-
-## Best Practices
-
-1. **Keep templates simple** - Complex logic belongs in controllers
-2. **Use helpers for formatting** - date, truncate, uppercase, etc.
-3. **Organize partials** - Group by feature (components/, products/, etc.)
-4. **Set defaults** - Use layouts and {{#yield-default}} for consistency
-5. **Cache in production** - CacheCompiledTemplates = true
-6. **Hot-reload in dev** - EnableHotReload = IsDevelopment()
-7. **Validate input** - Controllers should validate before passing to templates
-8. **Use globals** - Site-wide data (name, url, config) in Globals
-9. **Keep layouts shallow** - Avoid deep nesting for performance
-10. **Test edge cases** - Empty data, null values, missing partials
+            LastModified = template.

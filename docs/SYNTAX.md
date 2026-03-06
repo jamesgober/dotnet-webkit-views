@@ -564,3 +564,346 @@ Resolves media path. Default: `/assets/media/video.mp4`
   <a href="?page={{ nextPage }}">Next</a>
 {{/if}}
 ```
+
+## Built-in Helpers
+
+Helpers are functions callable from templates using `{{ helperName arguments }}` syntax.
+
+### Formatting Helpers
+
+#### date
+
+Format dates and times with custom patterns.
+
+**Syntax:**
+```html
+{{ date value "format" }}
+```
+
+**Examples:**
+```html
+{{ date createdAt "yyyy-MM-dd" }}            <!-- 2026-03-06 -->
+{{ date publishedAt "MMMM d, yyyy" }}        <!-- March 6, 2026 -->
+{{ date now "MMM dd" }}                      <!-- Mar 06 -->
+{{ date timestamp "hh:mm tt" }}              <!-- 08:30 AM -->
+```
+
+#### truncate
+
+Truncate strings to maximum length with ellipsis.
+
+**Syntax:**
+```html
+{{ truncate string maxLength }}
+```
+
+**Examples:**
+```html
+{{ truncate description 100 }}
+{{ truncate title 50 }}
+```
+
+### String Helpers
+
+#### uppercase
+
+Convert string to uppercase.
+
+**Syntax:**
+```html
+{{ uppercase string }}
+```
+
+**Examples:**
+```html
+{{ uppercase title }}                        <!-- HELLO WORLD -->
+{{ uppercase "hello" }}                      <!-- HELLO -->
+```
+
+#### lowercase
+
+Convert string to lowercase.
+
+**Syntax:**
+```html
+{{ lowercase string }}
+```
+
+**Examples:**
+```html
+{{ lowercase email }}                        <!-- user@example.com -->
+{{ lowercase "HELLO" }}                      <!-- hello -->
+```
+
+#### concat
+
+Concatenate multiple strings.
+
+**Syntax:**
+```html
+{{ concat string1 string2 ... }}
+```
+
+**Examples:**
+```html
+{{ concat firstName " " lastName }}          <!-- John Doe -->
+{{ concat "Hello, " user.name "!" }}         <!-- Hello, John! -->
+{{ concat path "/" file }}                   <!-- /uploads/file.pdf -->
+```
+
+#### replace
+
+Replace all occurrences of substring.
+
+**Syntax:**
+```html
+{{ replace string search replacement }}
+```
+
+**Examples:**
+```html
+{{ replace title "-" " " }}                  <!-- Hello World -->
+{{ replace slug "_" "-" }}                   <!-- my-awesome-post -->
+{{ replace phone "." "-" }}                  <!-- 555-123-4567 -->
+```
+
+### Conditional Helpers
+
+#### default
+
+Provide fallback value for null/empty values.
+
+**Syntax:**
+```html
+{{ default value fallback }}
+```
+
+**Returns fallback if value is:**
+- `null`
+- Empty string `""`
+- Whitespace-only
+
+**Returns value (not fallback) for:**
+- `0` (zero)
+- `false`
+- Any non-empty value
+
+**Examples:**
+```html
+{{ default title "Untitled Page" }}
+{{ default user.bio "No bio" }}
+{{ default description "..." }}
+```
+
+#### ifval
+
+Conditional value selection (ternary operator).
+
+**Syntax:**
+```html
+{{ ifval condition trueValue falseValue }}
+```
+
+**Truthy values:**
+- Non-empty strings
+- Non-zero numbers
+- `true`
+- Objects
+
+**Falsy values:**
+- `null`
+- Empty strings `""`
+- `0` (zero)
+- `false`
+
+**Examples:**
+```html
+{{ ifval user.isAdmin "Administrator" "User" }}
+{{ ifval inStock "Available" "Sold Out" }}
+{{ ifval hasErrors "danger" "success" }}
+```
+
+### Collection Helpers
+
+#### count
+
+Return count of items in collection.
+
+**Syntax:**
+```html
+{{ count collection }}
+```
+
+**Returns "0" for:**
+- `null`
+- Empty collections
+- Non-collection values
+- Strings (not counted as collections)
+
+**Examples:**
+```html
+{{ count items }}                            <!-- 5 -->
+{{ count cart.products }}                    <!-- 12 -->
+<span>{{ count notifications }} new</span>   <!-- 3 new -->
+```
+
+### Serialization Helpers
+
+#### json
+
+Serialize value to JSON.
+
+**Syntax:**
+```html
+{{ json value }}
+```
+
+**Examples:**
+```html
+<script>
+const data = {{ json payload }};
+const settings = {{ json config }};
+</script>
+```
+
+### Asset Helpers
+
+Generate asset URLs with CDN and versioning support.
+
+#### asset
+
+Generic asset helper.
+
+**Syntax:**
+```html
+{{ asset "path" }}
+```
+
+**Example:**
+```html
+{{ asset "main.css" }}                       <!-- /assets/main.css -->
+```
+
+#### css
+
+CSS file helper.
+
+**Syntax:**
+```html
+{{ css "file.css" }}
+```
+
+**Example:**
+```html
+<link rel="stylesheet" href="{{ css "styles.css" }}">
+<!-- /assets/css/styles.css -->
+```
+
+#### js
+
+JavaScript file helper.
+
+**Syntax:**
+```html
+{{ js "file.js" }}
+```
+
+**Example:**
+```html
+<script src="{{ js "app.js" }}"></script>
+<!-- /assets/js/app.js -->
+```
+
+#### img
+
+Image file helper.
+
+**Syntax:**
+```html
+{{ img "file.png" }}
+```
+
+**Example:**
+```html
+<img src="{{ img "logo.png" }}" alt="Logo">
+<!-- /assets/images/logo.png -->
+```
+
+#### font
+
+Font file helper.
+
+**Syntax:**
+```html
+{{ font "file.woff2" }}
+```
+
+**Example:**
+```html
+{{ font "Inter.woff2" }}
+<!-- /assets/fonts/Inter.woff2 -->
+```
+
+#### media
+
+Media file helper.
+
+**Syntax:**
+```html
+{{ media "file.mp4" }}
+```
+
+**Example:**
+```html
+<video src="{{ media "intro.mp4" }}"></video>
+<!-- /assets/media/intro.mp4 -->
+```
+
+### Asset Configuration
+
+Asset helpers respect `ViewEngineOptions.Assets` settings:
+
+**CDN Base URL:**
+```csharp
+options.Assets.CdnBaseUrl = "https://cdn.example.com";
+```
+```html
+{{ css "styles.css" }}
+<!-- https://cdn.example.com/assets/css/styles.css -->
+```
+
+**Version Hashing:**
+```csharp
+options.Assets.AppendVersionHash = true;
+options.Assets.AssetVersionHash = "abc123";
+```
+```html
+{{ css "styles.css" }}
+<!-- /assets/css/styles.css?v=abc123 -->
+```
+
+## Custom Helpers
+
+Create custom helpers by implementing `ITemplateHelper`:
+
+```csharp
+public class MyHelper : ITemplateHelper
+{
+    public string Name => "myhelper";
+    
+    public string Execute(object?[] arguments, TemplateContext context)
+    {
+        // Your logic here
+        return "result";
+    }
+}
+```
+
+Register in DI:
+```csharp
+services.AddTemplateHelper<MyHelper>();
+```
+
+Use in templates:
+```html
+{{ myhelper arg1 arg2 }}

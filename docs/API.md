@@ -224,56 +224,142 @@ public class PageController : Controller
 
 ## Built-in Helpers
 
-### date
+### Formatting
 
-Formats a DateTime or DateTimeOffset.
+#### date
+
+Formats a DateTime or DateTimeOffset with custom patterns.
 
 ```html
 {{ date createdAt "yyyy-MM-dd" }}
 {{ date now "dddd, MMMM d, yyyy" }}
+{{ date publishedAt "MMM d, yyyy" }}
 ```
 
-### truncate
+#### truncate
 
-Truncates string to max length with ellipsis.
+Truncates string to maximum length with ellipsis.
 
 ```html
 {{ truncate description 100 }}
+{{ truncate longText 50 }}
 ```
 
-### uppercase / lowercase
+### String Manipulation
+
+#### uppercase / lowercase
+
+Case transformation for strings.
 
 ```html
 {{ uppercase title }}
-{{ lowercase slug }}
+{{ lowercase email }}
+{{ uppercase "hello world" }}
 ```
 
-### json
+#### concat
 
-JSON serialization for script tags.
+Concatenates multiple strings into one.
+
+```html
+{{ concat firstName " " lastName }}
+{{ concat "Hello, " user.name "!" }}
+```
+
+#### replace
+
+Replaces all occurrences of a substring.
+
+```html
+{{ replace title "-" " " }}
+{{ replace slug "_" "-" }}
+```
+
+### Conditionals & Defaults
+
+#### default
+
+Provides fallback value for null or empty values.
+
+```html
+{{ default title "Untitled Page" }}
+{{ default user.bio "No bio available" }}
+{{ default description "..." }}
+```
+
+Returns fallback if value is:
+- `null`
+- Empty string `""`
+- Whitespace-only `"   "`
+
+Returns the value (not fallback) for:
+- `0` (zero)
+- `false`
+- Any non-empty value
+
+#### ifval
+
+Conditional value selection (ternary operator).
+
+```html
+{{ ifval user.isAdmin "Administrator" "User" }}
+{{ ifval hasItems "In Stock" "Out of Stock" }}
+{{ ifval count "Has Items" "Empty" }}
+```
+
+Truthy values: non-empty strings, non-zero numbers, `true`, objects  
+Falsy values: `null`, empty strings, `0`, `false`
+
+### Collections
+
+#### count
+
+Returns the count of items in a collection as a string.
+
+```html
+{{ count items }}              <!-- "5" -->
+{{ count emptyArray }}         <!-- "0" -->
+{{ count null }}               <!-- "0" -->
+```
+
+Returns "0" for:
+- `null`
+- Empty collections
+- Non-collection values
+- Strings (not counted as collections)
+
+### Serialization
+
+#### json
+
+JSON serialization for embedding data in templates.
 
 ```html
 <script>
 const data = {{ json payload }};
+const config = {{ json settings }};
 </script>
 ```
 
 ### Asset Helpers
 
+Resolution with CDN support and version hashing.
+
 ```html
 {{ asset "main.css" }}        <!-- /assets/main.css -->
-{{ image "logo.png" }}        <!-- /assets/images/logo.png -->
-{{ script "app.js" }}         <!-- /assets/js/app.js -->
+{{ css "styles.css" }}        <!-- /assets/css/styles.css -->
+{{ js "app.js" }}             <!-- /assets/js/app.js -->
+{{ img "logo.png" }}          <!-- /assets/images/logo.png -->
 {{ font "Inter.woff2" }}      <!-- /assets/fonts/Inter.woff2 -->
 {{ media "video.mp4" }}       <!-- /assets/media/video.mp4 -->
 ```
 
-With CDN:
+With CDN configured:
 ```html
 {{ asset "main.css" }}  <!-- https://cdn.example.com/assets/main.css -->
 ```
 
-With version hashing:
+With version hashing enabled:
 ```html
 {{ asset "main.css" }}  <!-- /assets/main.css?v=a1b2c3d4 -->
 ```

@@ -379,6 +379,71 @@
         <member name="M:JG.WebKit.Views.Helpers.MediaHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
             <inheritdoc />
         </member>
+        <member name="T:JG.WebKit.Views.Helpers.DefaultHelper">
+            <summary>
+            Built-in default value helper.
+            Returns the first argument if non-null and non-empty, otherwise returns the fallback.
+            Usage: {{ default title "Untitled Page" }}
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.DefaultHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.DefaultHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.IfValHelper">
+            <summary>
+            Built-in conditional value helper (ternary operator).
+            Returns second argument if first is truthy, otherwise returns third argument.
+            Usage: {{ ifval user.isAdmin "Administrator" "User" }}
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.IfValHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.IfValHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.ConcatHelper">
+            <summary>
+            Built-in string concatenation helper.
+            Concatenates all arguments into a single string.
+            Usage: {{ concat firstName " " lastName }}
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.ConcatHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.ConcatHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.ReplaceHelper">
+            <summary>
+            Built-in string replacement helper.
+            Replaces all occurrences of the search string with the replacement string.
+            Usage: {{ replace title "-" " " }}
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.ReplaceHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.ReplaceHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.CountHelper">
+            <summary>
+            Built-in collection count helper.
+            Returns the count of items in a collection.
+            Usage: {{ count items }}
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.CountHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.CountHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
         <member name="T:JG.WebKit.Views.Internal.Expression">
             <summary>
             Evaluates template expressions with dot notation, array indexing, and property access.
