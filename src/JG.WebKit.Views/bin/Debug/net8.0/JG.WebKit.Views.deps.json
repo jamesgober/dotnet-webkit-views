@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "JG.WebKit.Views/1.0.0": {
+        "runtime": {
+          "JG.WebKit.Views.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "JG.WebKit.Views/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

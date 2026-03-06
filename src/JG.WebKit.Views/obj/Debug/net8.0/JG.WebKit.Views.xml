@@ -1,0 +1,1080 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>JG.WebKit.Views</name>
+    </assembly>
+    <members>
+        <member name="T:JG.WebKit.Views.Abstractions.ITemplateProvider">
+            <summary>
+            Provides template sources from various backends (file, database, memory, etc.).
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Abstractions.ITemplateProvider.GetTemplateAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets a template by path.
+            </summary>
+            <param name="path">The template path or identifier.</param>
+            <param name="ct">Cancellation token.</param>
+            <returns>The template source, or null if not found.</returns>
+        </member>
+        <member name="P:JG.WebKit.Views.Abstractions.ITemplateProvider.SupportsHotReload">
+            <summary>
+            Gets a value indicating whether this provider supports hot-reload notification.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Abstractions.ITemplateHelper">
+            <summary>
+            Represents a registered template helper function.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Abstractions.ITemplateHelper.Name">
+            <summary>
+            Gets the name of the helper as used in templates.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Abstractions.ITemplateHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <summary>
+            Executes the helper with the given arguments.
+            </summary>
+            <param name="arguments">The arguments passed to the helper.</param>
+            <param name="context">The template context.</param>
+            <returns>The string output of the helper.</returns>
+        </member>
+        <member name="T:JG.WebKit.Views.Abstractions.IViewEngine">
+            <summary>
+            The main template rendering engine.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Abstractions.IViewEngine.RenderAsync(System.String,JG.WebKit.Views.TemplateContext,System.Threading.CancellationToken)">
+            <summary>
+            Renders a template by path with the given context.
+            </summary>
+            <param name="templatePath">The path to the template.</param>
+            <param name="context">The template context with data and globals.</param>
+            <param name="ct">Cancellation token.</param>
+            <returns>The rendered template output.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Abstractions.IViewEngine.RenderStringAsync(System.String,JG.WebKit.Views.TemplateContext,System.Threading.CancellationToken)">
+            <summary>
+            Renders a template string directly with the given context.
+            </summary>
+            <param name="templateContent">The template content as a string.</param>
+            <param name="context">The template context with data and globals.</param>
+            <param name="ct">Cancellation token.</param>
+            <returns>The rendered template output.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Abstractions.IViewEngine.InvalidateCache(System.String)">
+            <summary>
+            Invalidates the compiled template cache.
+            </summary>
+            <param name="templatePath">The template path to invalidate, or null to clear the entire cache.</param>
+        </member>
+        <member name="T:JG.WebKit.Views.Compilation.Parser">
+            <summary>
+            Parses a token stream into an abstract syntax tree (AST) of renderable nodes.
+            Implements a recursive descent parser with position tracking to prevent infinite loops.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Parser.#ctor(System.Collections.Generic.IReadOnlyList{JG.WebKit.Views.Compilation.Token},System.Collections.Generic.Dictionary{System.String,JG.WebKit.Views.Abstractions.ITemplateHelper},JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the Parser class.
+            </summary>
+            <param name="tokens">The token stream to parse.</param>
+            <param name="helpers">Optional dictionary of registered helpers for helper node creation.</param>
+            <param name="options">Optional engine options for parser configuration.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Parser.Parse">
+            <summary>
+            Parses the token stream into a list of nodes representing the template's AST.
+            </summary>
+            <returns>A read-only list of parsed nodes ready for rendering.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Parser.ParseEach(System.String)">
+            <summary>
+            Parses an each (loop) block with optional empty fallback.
+            Syntax: {{#each collection as itemName }}...{{#empty}}...{{/empty}}{{/each}}
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Parser.ParseNode">
+            <summary>
+            Parses a single node from the current token position.
+            CRITICAL: This method handles position advancement for single-token node types
+            to prevent infinite loops. Block-type nodes (if, each, section, yield-default)
+            handle their own position advancement internally.
+            </summary>
+            <returns>The parsed node, or null if the token type is not recognized.</returns>
+        </member>
+        <member name="T:JG.WebKit.Views.Compilation.TokenType">
+            <summary>
+            Defines the types of tokens recognized by the template tokenizer.
+            Each token type corresponds to a specific template syntax element.
+            </summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.Literal">
+            <summary>Raw HTML/text between template tags.</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.Variable">
+            <summary>Variable expression with HTML escaping: {{ expr }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.RawVariable">
+            <summary>Raw (unescaped) variable expression: {{{ expr }}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.Comment">
+            <summary>Comment that won't appear in output: {{-- text --}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.PartialStart">
+            <summary>Partial include: {{> name }}, {{> name "variant" }}, or {{> name context }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.IfStart">
+            <summary>If block start: {{#if expr }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.ElseIf">
+            <summary>Else-if branch: {{#elseif expr }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.Else">
+            <summary>Else branch: {{#else}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.IfEnd">
+            <summary>If block end: {{/if}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.EachStart">
+            <summary>Loop block start: {{#each collection as item }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.Empty">
+            <summary>Empty fallback in loop: {{#empty}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.EachEnd">
+            <summary>Loop block end: {{/each}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.LayoutDecl">
+            <summary>Layout declaration: {{#layout "name" }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.SectionStart">
+            <summary>Section definition start: {{#section "name" }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.SectionEnd">
+            <summary>Section definition end: {{/section}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.YieldTag">
+            <summary>Yield point in layout: {{#yield "name" }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.YieldDefaultStart">
+            <summary>Yield with default content start: {{#yield-default "name" }}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.YieldDefaultEnd">
+            <summary>Yield with default content end: {{/yield-default}}</summary>
+        </member>
+        <member name="F:JG.WebKit.Views.Compilation.TokenType.HelperCall">
+            <summary>Helper function call: {{ helperName arg1 arg2 }}</summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Compilation.Token">
+            <summary>
+            Represents a single token extracted from a template during tokenization.
+            Contains the token type, content, and source location for error reporting.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Compilation.Token.Type">
+            <summary>
+            Gets or sets the type of this token.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Compilation.Token.Content">
+            <summary>
+            Gets or sets the token content (the text inside the template tags or the literal text).
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Compilation.Token.Line">
+            <summary>
+            Gets or sets the source line number where this token was found (1-based).
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Compilation.Token.Column">
+            <summary>
+            Gets or sets the source column number where this token starts (1-based).
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Compilation.Tokenizer">
+            <summary>
+            Tokenizes template source code into a stream of tokens for parsing.
+            Implements a forward-scanning lexer that recognizes all template syntax elements.
+            Tracks line and column numbers for accurate error reporting.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Tokenizer.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the Tokenizer class.
+            </summary>
+            <param name="input">The template source code to tokenize.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Tokenizer.Tokenize">
+            <summary>
+            Tokenizes the entire input and returns a read-only list of tokens.
+            Scans the input linearly, alternating between literal text and template tags.
+            </summary>
+            <returns>A read-only list of tokens representing the template structure.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Tokenizer.TokenizeTag">
+            <summary>
+            Tokenizes a template tag starting with {{ and determines its type.
+            Handles all tag variants:
+            - {{{ }}} for raw variables
+            - {{-- --}} for comments
+            - {{> }} for partials
+            - {{# }} for block starts
+            - {{/ }} for block ends
+            - {{ }} for variables and helpers
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Tokenizer.ParseBlockTag(System.Int32,System.Int32)">
+            <summary>
+            Parses a block tag (starts with {{#) and determines its specific type.
+            Examples: if, elseif, else, each, empty, layout, section, yield, yield-default.
+            </summary>
+            <param name="startLine">The line number where the tag starts.</param>
+            <param name="startCol">The column number where the tag starts.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Compilation.Tokenizer.TokenizeLiteral">
+            <summary>
+            Tokenizes literal text content between template tags.
+            Accumulates characters until the next {{ is encountered or end of input.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.DateHelper">
+            <summary>
+            Built-in date formatting helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.DateHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.DateHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.TruncateHelper">
+            <summary>
+            Built-in string truncation helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.TruncateHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.TruncateHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.UppercaseHelper">
+            <summary>
+            Built-in uppercase helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.UppercaseHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.UppercaseHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.LowercaseHelper">
+            <summary>
+            Built-in lowercase helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.LowercaseHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.LowercaseHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.JsonHelper">
+            <summary>
+            Built-in JSON serialization helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.JsonHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.JsonHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.AssetHelper">
+            <summary>
+            Built-in asset path helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.AssetHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.AssetHelper.#ctor(JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the AssetHelper class.
+            </summary>
+            <param name="options">The view engine options.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.AssetHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.ImageHelper">
+            <summary>
+            Built-in image path helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.ImageHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.ImageHelper.#ctor(JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the ImageHelper class.
+            </summary>
+            <param name="options">The view engine options.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.ImageHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.ScriptHelper">
+            <summary>
+            Built-in script path helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.ScriptHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.ScriptHelper.#ctor(JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the ScriptHelper class.
+            </summary>
+            <param name="options">The view engine options.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.ScriptHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.FontHelper">
+            <summary>
+            Built-in font path helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.FontHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.FontHelper.#ctor(JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the FontHelper class.
+            </summary>
+            <param name="options">The view engine options.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.FontHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Helpers.MediaHelper">
+            <summary>
+            Built-in media path helper.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Helpers.MediaHelper.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.MediaHelper.#ctor(JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the MediaHelper class.
+            </summary>
+            <param name="options">The view engine options.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Helpers.MediaHelper.Execute(System.Object[],JG.WebKit.Views.TemplateContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:JG.WebKit.Views.Internal.Expression">
+            <summary>
+            Evaluates template expressions with dot notation, array indexing, and property access.
+            Implements caching for PropertyInfo lookups to optimize POCO object reflection.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.Expression.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the Expression class.
+            </summary>
+            <param name="expression">The expression string to evaluate (e.g., "user.profile.name").</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.Expression.Parse(System.String)">
+            <summary>
+            Factory method to create a new Expression instance.
+            </summary>
+            <param name="expression">The expression string to parse.</param>
+            <returns>A new Expression instance ready for evaluation.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.Expression.Evaluate(JG.WebKit.Views.TemplateContext)">
+            <summary>
+            Evaluates the expression against the provided context.
+            Supports dot notation (user.name), array indexing (items[0]), and deep nesting.
+            Returns null for missing variables without throwing exceptions.
+            </summary>
+            <param name="context">The template context containing data and globals.</param>
+            <returns>The evaluated value, or null if the expression cannot be resolved.</returns>
+        </member>
+        <member name="T:JG.WebKit.Views.Internal.ConditionEvaluator">
+            <summary>
+            Evaluates conditional expressions for template if/elseif blocks.
+            Supports comparison operators (==, !=, &gt;, &lt;, &gt;=, &lt;=), negation (!), and truthy checks.
+            String comparisons are case-sensitive (ordinal).
+            Numeric comparisons work across int, long, float, double types.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ConditionEvaluator.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the ConditionEvaluator class.
+            </summary>
+            <param name="condition">The condition expression to evaluate (e.g., "count >= 10").</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ConditionEvaluator.Evaluate(JG.WebKit.Views.TemplateContext)">
+            <summary>
+            Evaluates the condition against the provided context.
+            </summary>
+            <param name="context">The template context for variable resolution.</param>
+            <returns>True if the condition is satisfied, otherwise false.</returns>
+        </member>
+        <member name="T:JG.WebKit.Views.Internal.HtmlEscape">
+            <summary>
+            Provides high-performance HTML entity escaping to prevent XSS attacks.
+            Implements a zero-allocation fast path for strings that don't need escaping.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.HtmlEscape.Escape(System.String)">
+            <summary>
+            Escapes HTML special characters to their entity equivalents.
+            Fast path: Returns the input unchanged if no escaping is needed (zero allocations).
+            Slow path: Creates a new string with escaped entities.
+            </summary>
+            <param name="input">The string to escape.</param>
+            <returns>
+            The HTML-safe string with the following replacements:
+            &amp; -> &amp;amp;
+            &lt; -> &amp;lt;
+            &gt; -> &amp;gt;
+            " -> &amp;quot;
+            ' -> &amp;#39;
+            </returns>
+        </member>
+        <member name="T:JG.WebKit.Views.Internal.CompiledTemplate">
+            <summary>
+            Represents a compiled template with its rendering delegate and metadata.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Internal.CompiledTemplate.RenderFunc">
+            <summary>
+            Gets the compiled rendering function that executes the template.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Internal.CompiledTemplate.CompiledAt">
+            <summary>
+            Gets the timestamp when this template was compiled.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Internal.CompiledTemplate.Nodes">
+            <summary>
+            Gets the parsed nodes that make up the template.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Internal.CompiledTemplate.LayoutPath">
+            <summary>
+            Gets the layout path if this template declares a layout, otherwise null.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Internal.CompiledTemplate.EstimatedOutputSize">
+            <summary>
+            Gets the estimated output size for StringBuilder pre-allocation.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Internal.ViewEngine">
+            <summary>
+            Core view engine implementation that compiles and renders templates.
+            Thread-safe and optimized for high-throughput scenarios.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ViewEngine.#ctor(JG.WebKit.Views.Abstractions.ITemplateProvider,JG.WebKit.Views.ViewEngineOptions,System.Collections.Generic.Dictionary{System.String,JG.WebKit.Views.Abstractions.ITemplateHelper})">
+            <summary>
+            Initializes a new instance of the ViewEngine class.
+            </summary>
+            <param name="provider">The template provider for loading template sources.</param>
+            <param name="options">Configuration options for the engine.</param>
+            <param name="helpers">Dictionary of custom template helpers.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ViewEngine.RenderAsync(System.String,JG.WebKit.Views.TemplateContext,System.Threading.CancellationToken)">
+            <summary>
+            Renders a template asynchronously from the specified path.
+            </summary>
+            <param name="templatePath">The path of the template to render.</param>
+            <param name="context">The context object containing template data.</param>
+            <param name="ct">Optional. A cancellation token.</param>
+            <returns>The rendered template content.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ViewEngine.RenderStringAsync(System.String,JG.WebKit.Views.TemplateContext,System.Threading.CancellationToken)">
+            <summary>
+            Renders an inline template string with the provided context.
+            Useful for rendering dynamic templates without file system access.
+            </summary>
+            <param name="templateContent">The template content as a string.</param>
+            <param name="context">The rendering context containing data and globals.</param>
+            <param name="ct">Cancellation token for async operations.</param>
+            <returns>The rendered HTML string.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ViewEngine.RenderPartialAsync(JG.WebKit.Views.Nodes.PartialNode,JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders a partial template with optional context.
+            This method is the core of partial inclusion, handling:
+            - Path resolution with multiple fallback attempts
+            - Variant-based partial selection (e.g., card-mobile.html vs card.html)
+            - Context transformation from POCO objects to dictionaries
+            - Depth tracking to prevent infinite inclusion
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ViewEngine.InvalidateCache(System.String)">
+            <summary>
+            Invalidates the cache for the specified template path, or clears the entire cache if no path is specified.
+            </summary>
+            <param name="templatePath">Optional. The path of the template to invalidate.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Internal.ViewEngine.Dispose">
+            <summary>
+            Disposes the view engine, releasing any resources.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.INode">
+            <summary>
+            Represents a renderable node in the template's abstract syntax tree (AST).
+            All nodes implement async rendering with depth tracking for recursion prevention.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.INode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders this node asynchronously to produce HTML output.
+            </summary>
+            <param name="context">The template context containing data and globals.</param>
+            <param name="depth">Current inclusion depth for preventing infinite recursion.</param>
+            <returns>The rendered HTML string.</returns>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.LiteralNode">
+            <summary>
+            Represents a literal text node that outputs its content unchanged.
+            Used for static HTML/text content between template tags.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.LiteralNode.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the LiteralNode class.
+            </summary>
+            <param name="content">The literal text content to render.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.LiteralNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders the literal content unchanged.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.VariableNode">
+            <summary>
+            Represents a variable node that evaluates expressions and outputs HTML-escaped content.
+            Supports dot notation (user.name), array indexing (items[0]), and helper calls.
+            Syntax: {{ expression }} or {{ helperName args }}
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.VariableNode.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,JG.WebKit.Views.Abstractions.ITemplateHelper})">
+            <summary>
+            Initializes a new instance of the VariableNode class.
+            </summary>
+            <param name="expression">The expression to evaluate (e.g., "user.name" or "date publishedAt").</param>
+            <param name="helpers">Optional dictionary of registered helpers for helper call detection.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.VariableNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders the variable or helper call with HTML escaping.
+            If the expression starts with a registered helper name, executes the helper.
+            Otherwise evaluates the expression and HTML-escapes the result.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.RawVariableNode">
+            <summary>
+            Represents a raw output variable node that renders unescaped content.
+            SECURITY WARNING: Only use with trusted content to prevent XSS attacks.
+            Syntax: {{{ rawVariable }}}
+            Can be globally disabled via ViewEngineOptions.AllowRawOutput.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.RawVariableNode.#ctor(System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the RawVariableNode class.
+            </summary>
+            <param name="expression">The expression to evaluate.</param>
+            <param name="allowRawOutput">Whether raw output is allowed (from ViewEngineOptions).</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.RawVariableNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders the variable value. If AllowRawOutput is false, HTML-escapes the output for security.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.IfNode">
+            <summary>
+            Represents a conditional node with if/elseif/else branches.
+            Supports comparison operators, logical negation, and truthy checks.
+            Syntax: {{#if condition }}...{{#elseif condition }}...{{#else}}...{{/if}}
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.IfNode.#ctor(System.String,System.Collections.Generic.List{JG.WebKit.Views.Nodes.INode},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{JG.WebKit.Views.Nodes.INode}},System.Collections.Generic.List{JG.WebKit.Views.Nodes.INode})">
+            <summary>
+            Initializes a new instance of the IfNode class.
+            </summary>
+            <param name="condition">The primary condition expression.</param>
+            <param name="trueNodes">Nodes to render if the primary condition is true.</param>
+            <param name="elseIfNodes">Dictionary of elseif conditions and their nodes.</param>
+            <param name="elseNodes">Nodes to render if all conditions are false (optional).</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.IfNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Evaluates the condition(s) and renders the appropriate branch.
+            Evaluates conditions in order: if -> elseif(s) -> else.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.EachNode">
+            <summary>
+            Represents a loop node that iterates over collections with optional empty fallback.
+            Injects the current item and index into the rendering context.
+            Syntax: {{#each collection as itemName }}...{{#empty}}...{{/each}}
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.EachNode.#ctor(System.String,System.String,System.Collections.Generic.List{JG.WebKit.Views.Nodes.INode},System.Collections.Generic.List{JG.WebKit.Views.Nodes.INode})">
+            <summary>
+            Initializes a new instance of the EachNode class.
+            </summary>
+            <param name="collectionExpr">Expression that evaluates to an enumerable collection.</param>
+            <param name="itemName">Variable name for the current item in the loop.</param>
+            <param name="bodyNodes">Nodes to render for each item in the collection.</param>
+            <param name="emptyNodes">Nodes to render if the collection is null or empty (optional).</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.EachNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders the loop by iterating over the collection.
+            For each item, creates a new context with:
+            - {itemName}: the current item
+            - {itemName}.index: the current iteration index (0-based)
+            If the collection is empty or null, renders the empty block if present.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.CommentNode">
+            <summary>
+            Represents a comment node that produces no output.
+            Comments are stripped during rendering for clean HTML output.
+            Syntax: {{-- comment text }}
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.CommentNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders nothing (comments are not included in output).
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.PartialNode">
+            <summary>
+            Represents a partial include node with optional variant and context.
+            Partials are sub-templates that can be included and reused across templates.
+            Syntax: {{> partialName }}, {{> partialName "variant" }}, {{> partialName context }}
+            Rendering is delegated to ViewEngine.RenderPartialAsync for proper path resolution and caching.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.PartialNode.#ctor(System.String,System.String,System.String,JG.WebKit.Views.Abstractions.ITemplateProvider,JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the PartialNode class.
+            </summary>
+            <param name="path">The partial name/path (e.g., "header", "cards/featured").</param>
+            <param name="variant">Optional variant suffix (e.g., "mobile" for header-mobile.html).</param>
+            <param name="contextExpr">Optional expression to evaluate for the partial's context.</param>
+            <param name="provider">Unused parameter (kept for compatibility).</param>
+            <param name="options">Unused parameter (kept for compatibility).</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.PartialNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Rendering is handled by ViewEngine's RenderPartialAsync method.
+            This method returns empty as partials are processed during compilation.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.PartialNode.Path">
+            <summary>
+            Gets the partial name/path.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.PartialNode.Variant">
+            <summary>
+            Gets the optional variant name.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.PartialNode.ContextExpr">
+            <summary>
+            Gets the optional context expression.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.LayoutNode">
+            <summary>
+            Represents a layout declaration node.
+            Indicates that this template should be wrapped in the specified layout.
+            Syntax: {{#layout "layoutName" }}
+            The layout node itself produces no output; layout application happens after template rendering.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.LayoutNode.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the LayoutNode class.
+            </summary>
+            <param name="layoutName">The name of the layout template (e.g., "main", "_layouts/site").</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.LayoutNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Layout nodes produce no output in the main render pass.
+            The layout name is extracted during compilation and used for post-render layout application.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.LayoutNode.LayoutName">
+            <summary>
+            Gets the layout template name.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.SectionNode">
+            <summary>
+            Represents a section definition node for layout content injection.
+            Sections defined in content templates are injected into layout yield points.
+            Syntax: {{#section "sectionName" }}content{{/section}}
+            Section nodes produce no output in the main render; content is extracted and injected during layout rendering.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.SectionNode.#ctor(System.String,System.Collections.Generic.List{JG.WebKit.Views.Nodes.INode})">
+            <summary>
+            Initializes a new instance of the SectionNode class.
+            </summary>
+            <param name="sectionName">The section name (must match a yield in the layout).</param>
+            <param name="nodes">The nodes to render when this section is yielded.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.SectionNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Sections produce no output in the main content render.
+            Their content is extracted and rendered only when yielded by the layout.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.SectionNode.SectionName">
+            <summary>
+            Gets the section name.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.SectionNode.Nodes">
+            <summary>
+            Gets the nodes that make up the section content.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.YieldNode">
+            <summary>
+            Represents a yield point in a layout where content or sections are injected.
+            Syntax: {{#yield "sectionName" }}
+            If sectionName is "content", injects the entire rendered content.
+            Otherwise, injects the named section from the content template.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.YieldNode.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the YieldNode class.
+            </summary>
+            <param name="sectionName">The section name to yield ("content" for main content).</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.YieldNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Yield nodes produce no output when rendered directly.
+            Content injection is handled by ViewEngine.ApplyLayoutAsync.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.YieldNode.SectionName">
+            <summary>
+            Gets the section name to yield.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.YieldDefaultNode">
+            <summary>
+            Represents a yield point with default fallback content.
+            If the named section is not provided by the content template, renders the default content.
+            Syntax: {{#yield-default "sectionName" }}default content{{/yield-default}}
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.YieldDefaultNode.#ctor(System.String,System.Collections.Generic.List{JG.WebKit.Views.Nodes.INode})">
+            <summary>
+            Initializes a new instance of the YieldDefaultNode class.
+            </summary>
+            <param name="sectionName">The section name to yield.</param>
+            <param name="defaultNodes">Nodes to render if the section is not provided.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.YieldDefaultNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Renders the default content.
+            During layout application, this is only rendered if the section is not provided.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.YieldDefaultNode.SectionName">
+            <summary>
+            Gets the section name.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Nodes.HelperNode">
+            <summary>
+            Represents a helper call node (currently unused, reserved for future use).
+            Helpers are currently processed inline by VariableNode.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.HelperNode.#ctor(System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Initializes a new instance of the HelperNode class.
+            </summary>
+            <param name="helperName">The helper name.</param>
+            <param name="arguments">The helper arguments.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Nodes.HelperNode.RenderAsync(JG.WebKit.Views.TemplateContext,System.Int32)">
+            <summary>
+            Reserved for future use. Currently returns empty.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.HelperNode.HelperName">
+            <summary>
+            Gets the helper name.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Nodes.HelperNode.Arguments">
+            <summary>
+            Gets the helper arguments.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Providers.FileTemplateProvider">
+            <summary>
+            Template provider that reads templates from the file system.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Providers.FileTemplateProvider.SupportsHotReload">
+            <summary>
+            Gets a value indicating whether this provider supports hot-reload notification.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Providers.FileTemplateProvider.#ctor(System.String,JG.WebKit.Views.ViewEngineOptions)">
+            <summary>
+            Initializes a new instance of the FileTemplateProvider class.
+            </summary>
+            <param name="basePath">The base directory for template files.</param>
+            <param name="options">The view engine options.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Providers.FileTemplateProvider.GetTemplateAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets a template by path from the file system.
+            </summary>
+            <param name="path">The template path.</param>
+            <param name="ct">Cancellation token.</param>
+            <returns>The template source, or null if not found.</returns>
+        </member>
+        <member name="M:JG.WebKit.Views.Providers.FileTemplateProvider.EnableHotReload(System.Action{System.String})">
+            <summary>
+            Enables hot-reload by watching for file changes.
+            </summary>
+            <param name="onChanged">Callback when a template file changes.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Providers.FileTemplateProvider.Dispose">
+            <summary>
+            Disposes the file watcher.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.Providers.InMemoryTemplateProvider">
+            <summary>
+            Template provider that stores templates in memory.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.Providers.InMemoryTemplateProvider.SupportsHotReload">
+            <summary>
+            Gets a value indicating whether this provider supports hot-reload notification.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.Providers.InMemoryTemplateProvider.AddTemplate(System.String,System.String)">
+            <summary>
+            Adds a template to the in-memory store.
+            </summary>
+            <param name="path">The template path.</param>
+            <param name="content">The template content.</param>
+        </member>
+        <member name="M:JG.WebKit.Views.Providers.InMemoryTemplateProvider.GetTemplateAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets a template by path from memory.
+            </summary>
+            <param name="path">The template path.</param>
+            <param name="ct">Cancellation token.</param>
+            <returns>The template source, or null if not found.</returns>
+        </member>
+        <member name="T:JG.WebKit.Views.TemplateContext">
+            <summary>
+            Contains the rendering context for a template, including data and globals.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.TemplateContext.Data">
+            <summary>
+            Gets the template data model.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.TemplateContext.Globals">
+            <summary>
+            Gets site-wide globals available to all templates.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.TemplateContext.HttpContext">
+            <summary>
+            Gets the current HTTP context, if applicable.
+            </summary>
+        </member>
+        <member name="M:JG.WebKit.Views.TemplateContext.#ctor(System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object},System.Collections.Generic.IReadOnlyDictionary{System.String,System.Object},Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Initializes a new instance of the TemplateContext class.
+            </summary>
+            <param name="data">The template data model.</param>
+            <param name="globals">Site-wide globals available to all templates.</param>
+            <param name="httpContext">The current HTTP context, if applicable.</param>
+        </member>
+        <member name="T:JG.WebKit.Views.TemplateSource">
+            <summary>
+            Contains the content and metadata of a template source.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.TemplateSource.Content">
+            <summary>
+            Gets the template content.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.TemplateSource.Path">
+            <summary>
+            Gets the template path or identifier.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.TemplateSource.LastModified">
+            <summary>
+            Gets the last modified date of the template, if available.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.ViewEngineOptions">
+            <summary>
+            Configures the template engine behavior.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.TemplatePath">
+            <summary>
+            Gets or sets the directory containing template files.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.LayoutPath">
+            <summary>
+            Gets or sets the directory containing layout files.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.PartialPath">
+            <summary>
+            Gets or sets the directory containing partial files.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.Assets">
+            <summary>
+            Gets the asset path configuration.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.CacheCompiledTemplates">
+            <summary>
+            Gets or sets a value indicating whether to cache compiled templates.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.EnableHotReload">
+            <summary>
+            Gets or sets a value indicating whether to enable hot-reload in development mode.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.DefaultLayout">
+            <summary>
+            Gets or sets the default layout name used when no layout is specified.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.TemplateExtension">
+            <summary>
+            Gets or sets the file extension for template files.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.AllowRawOutput">
+            <summary>
+            Gets or sets a value indicating whether to allow raw unescaped output ({{{ }}}).
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.ViewEngineOptions.MaxIncludeDepth">
+            <summary>
+            Gets or sets the maximum include depth to prevent infinite recursion.
+            </summary>
+        </member>
+        <member name="T:JG.WebKit.Views.AssetOptions">
+            <summary>
+            Configures asset path resolution for templates.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.BasePath">
+            <summary>
+            Gets or sets the base path for all assets.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.Images">
+            <summary>
+            Gets or sets the path for image assets.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.Styles">
+            <summary>
+            Gets or sets the path for stylesheet assets.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.Scripts">
+            <summary>
+            Gets or sets the path for script assets.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.Fonts">
+            <summary>
+            Gets or sets the path for font assets.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.Media">
+            <summary>
+            Gets or sets the path for media assets.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.CdnBaseUrl">
+            <summary>
+            Gets or sets the CDN base URL, prepended to all asset URLs if set.
+            </summary>
+        </member>
+        <member name="P:JG.WebKit.Views.AssetOptions.AppendVersionHash">
+            <summary>
+            Gets or sets a value indicating whether to append a version hash for cache busting.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.WebKitViewsServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering JG.WebKit.Views services.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.WebKitViewsServiceCollectionExtensions.AddWebKitViews(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{JG.WebKit.Views.ViewEngineOptions})">
+            <summary>
+            Adds the WebKit Views template engine to the service collection.
+            </summary>
+            <param name="services">The service collection.</param>
+            <param name="configure">Optional configuration action.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.WebKitViewsServiceCollectionExtensions.AddTemplateProvider``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers a custom template provider.
+            </summary>
+            <typeparam name="T">The template provider type.</typeparam>
+            <param name="services">The service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.WebKitViewsServiceCollectionExtensions.AddTemplateHelper``1(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers a custom template helper.
+            </summary>
+            <typeparam name="T">The helper type.</typeparam>
+            <param name="services">The service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
+    </members>
+</doc>

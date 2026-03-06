@@ -1,0 +1,14 @@
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.AssemblyInfoInputs.cache
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.AssemblyInfo.cs
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.csproj.CoreCompileInputs.cache
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.sourcelink.json
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.xml
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\bin\Release\net8.0\JG.WebKit.Views.deps.json
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\bin\Release\net8.0\JG.WebKit.Views.dll
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\bin\Release\net8.0\JG.WebKit.Views.pdb
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\bin\Release\net8.0\JG.WebKit.Views.xml
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.dll
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\refint\JG.WebKit.Views.dll
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\JG.WebKit.Views.pdb
+C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\obj\Release\net8.0\ref\JG.WebKit.Views.dll

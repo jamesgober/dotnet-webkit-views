@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>JG.WebKit.Views</id>
+    <version>1.0.0</version>
+    <authors>James Gober</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/jamesgober/dotnet-webkit-views</projectUrl>
+    <description>Template engine for .NET 8. Compiled rendering, layouts with sections, partials, loops, conditionals, and configurable asset paths.</description>
+    <tags>template-engine views web-framework dotnet cms layouts</tags>
+    <repository type="git" url="https://github.com/jamesgober/dotnet-webkit-views" commit="5e0ad6b676ea8cd2ee8556cb18d05dddd1cddf86" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkReferences>
+      <group targetFramework="net8.0">
+        <frameworkReference name="Microsoft.AspNetCore.App" />
+      </group>
+    </frameworkReferences>
+  </metadata>
+  <files>
+    <file src="C:\Dev\libs\dotnet\dotnet-webkit-views\src\JG.WebKit.Views\bin\Release\net8.0\JG.WebKit.Views.pdb" target="lib\net8.0\JG.WebKit.Views.pdb" />
+  </files>
+</package>
